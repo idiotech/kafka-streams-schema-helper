@@ -7,27 +7,28 @@ import org.apache.avro.generic.IndexedRecord
 import org.apache.kafka.common.serialization.{ Deserializer, Serde, Serializer }
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig.AUTO_REGISTER_SCHEMAS
+import org.apache.avro.Schema
 
 trait KeySerde[T] extends Serde[T]
 trait ValueSerde[T] extends Serde[T]
 
 case class InnerSerdes(des: KafkaAvroDeserializer, ser: KafkaAvroSerializer) {
 
-  def deserializer[T: Decoder: SchemaFor]: Deserializer[T] =
+  def deserializer[T: Decoder](schema: Schema): Deserializer[T] =
     (topic: String, data: Array[Byte]) =>
       if (data == null) null.asInstanceOf[T]
       else
         des.deserialize(topic, data) match {
           case ir: IndexedRecord =>
-            implicitly[Decoder[T]].decode(ir, AvroSchema[T], DefaultFieldMapper)
+            implicitly[Decoder[T]].decode(ir, schema, DefaultFieldMapper)
           case r => throw new IllegalArgumentException(s"unknown record: $r")
         }
 
-  def serializer[T: Encoder: SchemaFor]: Serializer[T] =
+  def serializer[T: Encoder](schema: Schema): Serializer[T] =
     (topic: String, data: T) =>
       if (data == null) null
       else
-        ser.serialize(topic, implicitly[Encoder[T]].encode(data, AvroSchema[T], DefaultFieldMapper))
+        ser.serialize(topic, implicitly[Encoder[T]].encode(data, schema, DefaultFieldMapper))
 
 }
 
@@ -47,13 +48,13 @@ trait ScalaSerdes {
   lazy val innerValueSerdes = InnerSerdes(createInnerDes(false), createInnerSer(false))
 
   def keySerde[T : Encoder: Decoder: SchemaFor]: KeySerde[T] = new KeySerde[T] {
-    override def serializer(): Serializer[T] = innerKeySerdes.serializer
-    override def deserializer(): Deserializer[T] = innerKeySerdes.deserializer
+    override def serializer(): Serializer[T] = innerKeySerdes.serializer(AvroSchema[T])
+    override def deserializer(): Deserializer[T] = innerKeySerdes.deserializer(AvroSchema[T])
   }
 
   def valueSerde[T : Encoder: Decoder: SchemaFor]: ValueSerde[T] = new ValueSerde[T] {
-    override def serializer(): Serializer[T] = innerValueSerdes.serializer
-    override def deserializer(): Deserializer[T] = innerValueSerdes.deserializer
+    override def serializer(): Serializer[T] = innerValueSerdes.serializer(AvroSchema[T])
+    override def deserializer(): Deserializer[T] = innerValueSerdes.deserializer(AvroSchema[T])
   }
 
 }
