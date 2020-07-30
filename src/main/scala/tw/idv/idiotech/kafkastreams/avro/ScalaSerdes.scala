@@ -24,7 +24,7 @@ case class InnerSerdes(des: KafkaAvroDeserializer, ser: KafkaAvroSerializer) {
           case r => throw new IllegalArgumentException(s"unknown record: $r")
         }
 
-  def serializer[T: Encoder](schema: Schema): Serializer[T] =
+  def serializer[T: Encoder: SchemaFor](schema: Schema): Serializer[T] =
     (topic: String, data: T) =>
       if (data == null) null
       else
