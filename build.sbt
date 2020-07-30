@@ -22,6 +22,11 @@ libraryDependencies ++= Seq(
   "org.apache.kafka" %% "kafka-streams-scala" % kafkaVersion,
   "org.apache.kafka" % "kafka-clients" % kafkaVersion,
   "com.sksamuel.avro4s" %% "avro4s-core" % "3.0.9",
+  "javax.ws.rs" % "javax.ws.rs-api" % "2.1.1" artifacts Artifact(
+    "javax.ws.rs-api",
+    "jar",
+    "jar"
+  )
 ) ++ testDependencies.map(_ % Test)
 
 dependencyOverrides ++= Seq(
