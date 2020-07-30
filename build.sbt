@@ -9,8 +9,8 @@ val thirdPartyRepos = Seq(
 )
 resolvers := (thirdPartyRepos ++ resolvers.value)
 
-val confluentAvroVersion = "5.3.2"
-val kafkaVersion = "2.3.1"
+val confluentAvroVersion = "5.5.1"
+val kafkaVersion = "2.5.0"
 
 val testDependencies = Seq(
   "org.apache.kafka" % "kafka-streams-test-utils" % kafkaVersion,
