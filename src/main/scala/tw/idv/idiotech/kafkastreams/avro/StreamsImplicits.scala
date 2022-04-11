@@ -64,6 +64,12 @@ trait StreamsImplicits {
     valueSerde: ValueSerde[V]
   ): Materialized[K, V, KeyValueStore[Bytes, Array[Byte]]] =
     Materialized.as[K, V, KeyValueStore[Bytes, Array[Byte]]](name)
+
+  def materializeWith[K, V](
+    implicit keySerde: KeySerde[K],
+    valueSerde: ValueSerde[V]
+  ): Materialized[K, V, KeyValueStore[Bytes, Array[Byte]]] =
+    Materialized.`with`[K, V, KeyValueStore[Bytes, Array[Byte]]]
 }
 object StreamsImplicits {
   trait KeyValueSerde[T] extends KeySerde[T] with ValueSerde[T]
