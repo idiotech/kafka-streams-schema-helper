@@ -74,7 +74,7 @@ trait ProductionSerdes extends ScalaSerdes {
 }
 
 trait MockSchemaRegistry extends ScalaSerdes {
-  override lazy val schemaRegistry: String = "fak"
+  override lazy val schemaRegistry: String = "mock://"
   private val client = new MockSchemaRegistryClient()
   override def createInnerDes(isKey: Boolean): KafkaAvroDeserializer =
     new KafkaAvroDeserializer(client, serdesConfig)
